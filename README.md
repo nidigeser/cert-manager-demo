@@ -5,9 +5,77 @@ Dabei deployen wir unsere Chat-App in einem Kubernetes-Cluster richten wir den v
 um den Datenverkehr an unseren Chat-Dienste zu leiten. Sobald wir den Ingress eingerichtet haben, werden wir **cert-manager** in unserem Cluster installieren, 
 um TLS-Zertifikate für die Verschlüsselung des HTTP-Verkehrs zum Ingress zu verwalten und bereitzustellen.
 
-## Vorbedingungen
+### Vorbedingungen
 * Docker Image der Chat-App über Docker Hub zugänglich machen: [Pushing a Docker container image to Docker Hub](https://docs.docker.com/docker-hub/repos/#:~:text=To%20push%20an%20image%20to,docs%2Fbase%3Atesting%20)
 * Installieren von kubectl: [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
 * Kubernetes Cluster: Ich verwende [DigitalOcean](https://www.digitalocean.com/products/kubernetes), andere Tools wie [kind](https://kind.sigs.k8s.io/docs/user/quick-start/) sind auch möglich
 * Eigene Domain registrieren: Bspw. bei [Google Domains](https://domains.google/intl/de_de/) !!! ACHTUNG: Kostenpflichtig !!!
 
+## 1. Deploy Chat-App
+Zuallererst erstellen wir einen Namespace, in dem unsere Chat-App eingebettet ist.
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chat
+```
+```
+kubectl apply -f namespace.yaml
+```
+
+Wir definieren ein Deployment, das unseren Pod managed, in dem unser Chat-App Container läuft. Das Docker Hub image `nidigeser/chatapp:latest` wird verwendet.
+Die Chat-App hört auf den Port 3000.
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat
+  namespace: chat
+  labels:
+    app: chat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+  template:
+    metadata:
+      labels:
+        app: chat
+    spec:
+      containers:
+      - name: chat
+        image: nidigeser/chatapp:latest
+        ports:
+        - containerPort: 3000
+```
+
+Zum Pod definieren wir den dazugehörigen Service, der über Port 80 ansprechbar ist und Anfragen an unsere Chat-App auf den Port 3000 weiterleitet.
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat
+  namespace: chat
+spec:
+  selector:
+    app: chat
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 3000
+```
+
+Wir erzeugen die Ressourcen
+```
+kubectl apply -f chat-app.yaml
+```
+und überprüfen, dass der Pod läuft
+```
+kubectl get pod --namespace chat
+```
+```
+NAME                   READY   STATUS    RESTARTS   AGE
+chat-d6455c79b-2tncn   1/1     Running   0          45s
+```
