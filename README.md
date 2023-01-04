@@ -149,6 +149,7 @@ kubectl apply -f ingress.yaml
 ```
 
 ## 3. Deploy Cert-Manager
+Nachdem wir nun den Ingress eingerichtet haben, werden wir cert-manager in unserem Cluster installieren, um TLS-Zertifikate für die Verschlüsselung des HTTP-Verkehrs zum Ingress zu verwalten und bereitzustellen.
 ### Digital Ocean Hotfix für Pod-Pod Kommunikation
 Vor der Bereitstellung von Zertifikaten von Let's Encrypt führt cert-manager zunächst eine Selbstprüfung durch, um sicherzustellen, dass Let's Encrypt den cert-manager-Pod erreichen kann, der Ihre Domain validiert. Damit diese Prüfung auf DigitalOcean Kubernetes erfolgreich ist, müssen Sie die Pod-Pod-Kommunikation über den Nginx Ingress Load Balancer aktivieren.
 
@@ -189,5 +190,64 @@ replicaset.apps/cert-manager-74d949c895             1         1         1       
 replicaset.apps/cert-manager-cainjector-d9bc5979d   1         1         1       16s
 replicaset.apps/cert-manager-webhook-84b7ddd796     1         1         1       15s
 ```
+## Let´s Encrypt Issuer erstellen
+Das erste, was wir nach der Installation von cert-manager konfigurieren, ist ein Issuer oder ein ClusterIssuer. Issuer und ClusterIssuer sind Kubernetes-Ressourcen, die Zertifizierungsstellen (CAs) darstellen, die in der Lage sind, signierte Zertifikate zu generieren, indem sie Zertifikatsignierungsanforderungen erfüllen. Alle cert-manager-Zertifikate erfordern einen referenzierten Issuer. Cert-manager verfügt über eine Reihe von eingebauten Zertifikatsausstellern, die durch ihre Zugehörigkeit zur cert-manager.io-Gruppe gekennzeichnet sind. Wir verwenden Let´s Encrypt und die `ClusterIssuer` Resource, die es uns erlaubt Zertifikate in sämtlichen Namespaces zu beziehen.
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: lets-encrypt-cluster-issuer
+spec:
+  acme:
+    email: jd1867g@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: lets-encrypt-cluster-issuer-key
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+```
+```
+kubectl apply -f cert-issuer.yaml
+```
+`ClusterIssuer` prüfen 
+```
+kubectl describe clusterissuer cert-issuer
+```
 
-
+## Zertifikat beziehen
+Um nun nach einem TLS Zertifikat anfragen zu können, muss die Ingress Resource angepasst werden. Wir fügen eine Annotation ein, um den cert-manager ClusterIssuer zu setzen mit dessen Hilfe eine Zertifikat Ressource erstellt wird und die Zertifikatsanfrage gestartet werden kann. Wir fügen auch einen `tls`-Block hinzu, um die Hosts anzugeben, für die wir Zertifikate erwerben wollen, und geben einen `secretName` an. Dieses Geheimnis wird den privaten TLS-Schlüssel und das ausgestellte Zertifikat enthalten.
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: chat
+  namespace: chat
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt-cluster-issuer
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - chat.niklaspse.de
+    secretName: chat-tls
+  rules:
+  - host: chat.niklaspse.de
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chat
+            port:
+              number: 80
+```
+```
+kubectl apply -f ingress.yaml
+```
+```
+kubectl describe certificate
+kubectl get certificate
+```
