@@ -79,3 +79,7 @@ kubectl get pod --namespace chat
 NAME                   READY   STATUS    RESTARTS   AGE
 chat-d6455c79b-2tncn   1/1     Running   0          45s
 ```
+
+## 2. Deploy Ingress Controller
+Der Ingress Controller ist eine Anwendung, die in einem Cluster ausgeführt wird und einen HTTP Load-Balancer entsprechend den Ingress-Ressourcen konfiguriert. Ein solcher Load Balancer ist erforderlich, um Anwendungen an Clients außerhalb des Kubernetes-Clusters zu liefern. Der Ingress Controller wird zusammen mit dem Load Balancer in einem Pod bereitgestellt.
+Wir verwenden als Ingress Controller NGINX und installieren diesen über das [Digital Ocean Manifest](https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/index.md#digital-ocean). Weitere Installationsmöglichkeiten findet ihr [hier](https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/index.md)
