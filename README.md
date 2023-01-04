@@ -260,7 +260,7 @@ Events:
   Normal  Issuing    5s    cert-manager-certificates-issuing          The certificate has been successfully issued
 ```
 Cert-manager hat ein Geheimnis mit den Details des Zertifikats erstellt, das auf dem in der Ingress-Ressource verwendeten Geheimnis basiert. Sie können auch hier den Befehl describe verwenden, um einige Details zu sehen:
-`
+```
 kubectl describe secret --namespace chat
-`
+```
 Das Zertifikat wurde erfolgreich bezogen und die Domäne [chat.niklaspse.de](https://chat.niklaspse.de) ist TLS terminiert.
