@@ -96,4 +96,27 @@ kubectl get svc --namespace ingress-nginx
 NAME                                 TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)                      AGE
 ingress-nginx-controller             LoadBalancer   10.245.187.242   157.245.26.212   80:32726/TCP,443:32528/TCP   1m52s
 ```
+Wir sollten nun auf den NGINX über die Externe IP-Adresse in einem Webbrowser zugreifen können und `404 Not Found` sehen. Der Ingress Controller läuft damit, allerdings ist noch keine Ingress-Route zu unserer Anwendung anwendung definiert worden. Mit folgender Ingress Konfiguration stellen wir die Verbindung zwischen LoadBalancer und Chat-App her.
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: chat
+  namespace: chat
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chat
+            port:
+              number: 80
+```
+Erneute Eingabe der IP Adresse liefert uns die Chat-App.
+
+### Setup my DNS
 
