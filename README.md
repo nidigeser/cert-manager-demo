@@ -248,6 +248,14 @@ spec:
 kubectl apply -f ingress.yaml
 ```
 ```
-kubectl describe certificate
-kubectl get certificate
+kubectl describe certificate --namespace chat
+```
+```
+Events:
+  Type    Reason     Age   From                                       Message
+  ----    ------     ----  ----                                       -------
+  Normal  Issuing    31s   cert-manager-certificates-trigger          Issuing certificate as Secret does not exist
+  Normal  Generated  31s   cert-manager-certificates-key-manager      Stored new private key in temporary Secret resource "chat-tls-ct4cl"
+  Normal  Requested  31s   cert-manager-certificates-request-manager  Created new CertificateRequest resource "chat-tls-fxpvk"
+  Normal  Issuing    5s    cert-manager-certificates-issuing          The certificate has been successfully issued
 ```
