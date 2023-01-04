@@ -160,6 +160,10 @@ kubectl apply -f nginx-do-hotfix.yaml
 ```
 kubectl get svc --namespace ingress-nginx
 ```
+```
+NAME                                 TYPE           CLUSTER-IP       EXTERNAL-IP            PORT(S)                      AGE
+ingress-nginx-controller             LoadBalancer   10.245.187.242   ingress.niklaspse.de   80:32726/TCP,443:32528/TCP   2m50s
+```
 
 ### Installieren von Cert-Manager
 Cert-Manager kann ebenso wie NGNIX sehr einfach über ein Manifest im Cluster installiert werden.
