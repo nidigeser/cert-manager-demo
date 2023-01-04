@@ -148,3 +148,46 @@ spec:
 kubectl apply -f ingress.yaml
 ```
 
+## 3. Deploy Cert-Manager
+### Digital Ocean Hotfix für Pod-Pod Kommunikation
+Vor der Bereitstellung von Zertifikaten von Let's Encrypt führt cert-manager zunächst eine Selbstprüfung durch, um sicherzustellen, dass Let's Encrypt den cert-manager-Pod erreichen kann, der Ihre Domain validiert. Damit diese Prüfung auf DigitalOcean Kubernetes erfolgreich ist, müssen Sie die Pod-Pod-Kommunikation über den Nginx Ingress Load Balancer aktivieren.
+
+Dazu erstellen wir einen DNS-A-Eintrag, der auf die externe IP des Cloud-Load-Balancers verweist, und kommentieren das Nginx-Ingress-Service-Manifest mit dieser Subdomain. In unserem Fall: `service.beta.kubernetes.io/do-loadbalancer-hostname: 'ingress.niklaspse.de'`
+```
+kubectl apply -f nginx-do-hotfix.yaml
+```
+```
+kubectl get svc --namespace ingress-nginx
+```
+
+### Installieren von Cert-Manager
+Cert-Manager kann ebenso wie NGNIX sehr einfach über ein Manifest im Cluster installiert werden.
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
+```
+Überprüfen, dass alle Cert-Manager Ressourcen erfolgreich laufen
+```
+kubectl get all --namespace cert-manager
+```
+```
+NAME                                          READY   STATUS    RESTARTS   AGE
+pod/cert-manager-74d949c895-mgzlc             1/1     Running   0          15s
+pod/cert-manager-cainjector-d9bc5979d-8vd5w   1/1     Running   0          15s
+pod/cert-manager-webhook-84b7ddd796-vpbv9     1/1     Running   0          15s
+
+NAME                           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/cert-manager           ClusterIP   10.245.161.247   <none>        9402/TCP   16s
+service/cert-manager-webhook   ClusterIP   10.245.236.99    <none>        443/TCP    16s
+
+NAME                                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/cert-manager              1/1     1            1           15s
+deployment.apps/cert-manager-cainjector   1/1     1            1           16s
+deployment.apps/cert-manager-webhook      1/1     1            1           15s
+
+NAME                                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/cert-manager-74d949c895             1         1         1       15s
+replicaset.apps/cert-manager-cainjector-d9bc5979d   1         1         1       16s
+replicaset.apps/cert-manager-webhook-84b7ddd796     1         1         1       15s
+```
+
+
