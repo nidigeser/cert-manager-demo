@@ -157,6 +157,34 @@ Vor der Bereitstellung von Zertifikaten von Let's Encrypt führt cert-manager zu
 
 Dazu erstellen wir einen DNS-A-Eintrag, der auf die externe IP des Cloud-Load-Balancers verweist, und kommentieren das Nginx-Ingress-Service-Manifest mit dieser Subdomain. In unserem Fall: `service.beta.kubernetes.io/do-loadbalancer-hostname: 'ingress.niklaspse.de'`
 ```
+kind: Service
+apiVersion: v1
+metadata:
+  annotations: 
+    # See https://github.com/digitalocean/digitalocean-cloud-controller-manager/blob/master/docs/controllers/services/examples/README.md#accessing-pods-over-a-managed-load-balancer-from-inside-the-cluster
+    service.beta.kubernetes.io/do-loadbalancer-hostname: 'ingress.niklaspse.de'
+    service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: 'true'
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/component: controller
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: https
+      port: 443
+      targetPort: https
+```
+```
 kubectl apply -f nginx-do-hotfix.yaml
 ```
 ```
