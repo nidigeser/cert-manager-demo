@@ -156,7 +156,7 @@ Nachdem wir nun den Ingress eingerichtet haben, werden wir cert-manager in unser
 Vor der Bereitstellung von Zertifikaten von Let's Encrypt führt cert-manager zunächst eine Selbstprüfung durch, um sicherzustellen, dass Let's Encrypt den cert-manager-Pod erreichen kann, der Ihre Domain validiert. Damit diese Prüfung auf DigitalOcean Kubernetes erfolgreich ist, müssen Sie die Pod-Pod-Kommunikation über den Nginx Ingress Load Balancer aktivieren.
 
 Dazu erstellen wir einen DNS-A-Eintrag, der auf die externe IP des Cloud-Load-Balancers verweist, und kommentieren das Nginx-Ingress-Service-Manifest mit dieser Subdomain. In unserem Fall: `service.beta.kubernetes.io/do-loadbalancer-hostname: 'ingress.niklaspse.de'`
-```
+```yaml
 kind: Service
 apiVersion: v1
 metadata:
