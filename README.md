@@ -226,6 +226,16 @@ replicaset.apps/cert-manager-webhook-84b7ddd796     1         1         1       
 ```
 ### Let´s Encrypt Issuer erstellen
 Das erste, was wir nach der Installation von cert-manager konfigurieren, ist ein Issuer oder ein ClusterIssuer. Issuer und ClusterIssuer sind Kubernetes-Ressourcen, die Zertifizierungsstellen (CAs) darstellen, die in der Lage sind, signierte Zertifikate zu generieren, indem sie Zertifikatsignierungsanforderungen erfüllen. Alle cert-manager-Zertifikate erfordern einen referenzierten Issuer. Cert-manager verfügt über eine Reihe von eingebauten Zertifikatsausstellern, die durch ihre Zugehörigkeit zur cert-manager.io-Gruppe gekennzeichnet sind. Wir verwenden Let´s Encrypt und die `ClusterIssuer` Resource, die es uns erlaubt Zertifikate in sämtlichen Namespaces zu beziehen.
+#### ACME
+Der Typ ACME Issuer steht für ein einzelnes Benutzerkonto, das bei der Zertifizierungsstelle Automated Certificate Management Environment (ACME) registriert ist. Wenn du einen neuen ACME Issuer erstellst, generiert cert-manager einen privaten Schlüssel, der zur Identifizierung mit dem ACME-Server verwendet wird.
+
+Zertifikate, die von öffentlichen ACME-Servern ausgestellt wurden, werden in der Regel standardmäßig von Clients als vertrauenswürdig eingestuft. Das bedeutet, dass z. B. der Besuch einer Website, die durch ein für diese URL ausgestelltes ACME-Zertifikat gesichert ist, von den meisten Webbrowsern standardmäßig als vertrauenswürdig eingestuft wird. ACME-Zertifikate sind in der Regel kostenlos.
+
+#### HTTP01 Challenge
+Damit der ACME CA-Server überprüfen kann, ob ein Client Eigentümer der Domain ist, für die ein Zertifikat beantragt wird, muss der Client eine "Challenge" erfüllen. Damit soll sichergestellt werden, dass Clients keine Zertifikate für Domains beantragen können, die ihnen nicht gehören. Cert-manager bietet zwei Challenge-Prüfungen an - HTTP01- und DNS01-Challenges.
+
+HTTP01 ist der heute am häufigsten verwendete Challenge-Typ. Let's Encrypt gibt dem Client ein Token, und der Client legt eine Datei auf seinem Webserver unter http://<YOUR_DOMAIN>/.well-known/acme-challenge/<TOKEN> ab. Diese Datei enthält den Token sowie einen "Fingerabdruck". Let's Encrypt versucht die Datei abzurufen und validiert diesen Fingerabdruck. Wenn eine HTTP01-Challenge erstellt wird, konfiguriert cert-manager Ihren Cluster-Ingress automatisch so, dass er den Verkehr für diese URL an einen kleinen Webserver weiterleitet, der diesen Schlüssel präsentiert.
+
 ```yaml
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
