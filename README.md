@@ -257,7 +257,7 @@ kubectl apply -f cert-issuer.yaml
 ```
 `ClusterIssuer` prüfen 
 ```
-kubectl describe clusterissuer cert-issuer
+kubectl describe clusterissuer lets-encrypt-cluster-issuer
 ```
 
 ### Zertifikat beziehen
