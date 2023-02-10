@@ -124,31 +124,8 @@ kubectl apply -f ingress.yaml
 Erneute Eingabe der IP Adresse liefert uns die Chat-App.
 
 ### Setup my DNS
-Bei meinem DNS Provider erstelle ich einen DNS Eintrag vom Typ A und verknüpfe diesen mit der externen IP Adresse des LoadBalancers.
-Anschließend fügen wir den Hostnamen in der Spezifikation der Ingress Resource hinzu: `- host: chat.niklaspse.de`
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata: 
-  name: chat
-  namespace: chat
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: chat.niklaspse.de
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: chat
-            port:
-              number: 80
-```
-```
-kubectl apply -f ingress.yaml
-```
+Bei meinem DNS Provider (bspw. [Google Domains](https://domains.google/intl/de_de/) erstelle ich einen DNS Eintrag vom Typ A und werde diese später mit der externen IP Adresse des LoadBalancers verknüpfen. Der in diesem Beispiel verwendete Hostname ist: `chat.niklaspse.de`
+
 
 ## 3. Deploy Cert-Manager
 Nachdem wir nun den Ingress eingerichtet haben, werden wir cert-manager in unserem Cluster installieren, um TLS-Zertifikate für die Verschlüsselung des HTTP-Verkehrs zum Ingress zu verwalten und bereitzustellen.
