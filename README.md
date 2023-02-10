@@ -124,7 +124,8 @@ kubectl apply -f ingress.yaml
 Erneute Eingabe der IP Adresse liefert uns die Chat-App.
 
 ### Setup my DNS
-Bei meinem DNS Provider (bspw. [Google Domains](https://domains.google/intl/de_de/) erstelle ich einen DNS Eintrag vom Typ A und werde diese später mit der externen IP Adresse des LoadBalancers verknüpfen. Der in diesem Beispiel verwendete Hostname ist: `chat.niklaspse.de`
+Bei meinem DNS Provider (bspw. [Google Domains](https://domains.google/intl/de_de/)) erstelle ich einen DNS Eintrag vom Typ A und werde diese später mit der externen IP Adresse des LoadBalancers verknüpfen. !!! ACHTUNG: Kostenpflichtig !!!
+Der in diesem Beispiel verwendete Hostname ist: `chat.niklaspse.de`
 
 
 ## 3. Deploy Cert-Manager
