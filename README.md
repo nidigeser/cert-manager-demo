@@ -252,10 +252,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - chat.niklaspse.de
+    - chatapp.niklaspse.de
     secretName: chat-tls
   rules:
-  - host: chat.niklaspse.de
+  - host: chatapp.niklaspse.de
     http:
       paths:
       - path: /
